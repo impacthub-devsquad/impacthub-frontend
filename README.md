@@ -82,13 +82,10 @@ src/
 └── types/          # Tipagens TypeScript
 ```
 
-## Contexto Acadêmico
-
-Este projeto foi desenvolvido como projeto acadêmico no Instituto Federal Fluminense (Campus Itaperuna), aplicando práticas de engenharia de software como levantamento de requisitos funcionais e não funcionais, mapeamento de telas com matriz ator × tela, diagrama de classes e controle de versão com Git/GitHub.
-
 ## Equipe
 
 - [Maria Luisa Sanches](https://github.com/marialuisasanches)
+- Josinaldo Junior
 
 ## Licença
 
