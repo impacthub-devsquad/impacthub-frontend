@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import AppLayout from "@/components/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,13 +8,23 @@ import { Label } from "@/components/ui/label";
 import { currentUser } from "@/data/mockData";
 
 const Perfil = () => {
+  const navigate = useNavigate();
+
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(currentUser.name);
   const [email, setEmail] = useState(currentUser.email);
 
   const handleSave = () => {
-    // aqui futuramente vai integrar com API
+    // futuramente integrar com API
     setIsEditing(false);
+  };
+
+  const handleLogout = () => {
+    // futuramente: remover token/autenticação
+    localStorage.removeItem("token");
+    sessionStorage.clear();
+
+    navigate("/");
   };
 
   return (
@@ -28,7 +39,10 @@ const Perfil = () => {
             <div className="space-y-1">
               <Label>Nome</Label>
               {isEditing ? (
-                <Input value={name} onChange={(e) => setName(e.target.value)} />
+                <Input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
               ) : (
                 <p className="text-muted-foreground">{name}</p>
               )}
@@ -38,7 +52,10 @@ const Perfil = () => {
             <div className="space-y-1">
               <Label>Email</Label>
               {isEditing ? (
-                <Input value={email} onChange={(e) => setEmail(e.target.value)} />
+                <Input
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
               ) : (
                 <p className="text-muted-foreground">{email}</p>
               )}
@@ -63,11 +80,14 @@ const Perfil = () => {
             )}
 
             {/* Ações */}
-            <div className="pt-4 flex gap-2">
+            <div className="pt-4 flex gap-2 flex-wrap">
               {isEditing ? (
                 <>
                   <Button onClick={handleSave}>Salvar</Button>
-                  <Button variant="outline" onClick={() => setIsEditing(false)}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsEditing(false)}
+                  >
                     Cancelar
                   </Button>
                 </>
@@ -76,6 +96,10 @@ const Perfil = () => {
                   Editar perfil
                 </Button>
               )}
+
+              <Button variant="destructive" onClick={handleLogout}>
+                Sair
+              </Button>
             </div>
 
           </CardContent>
