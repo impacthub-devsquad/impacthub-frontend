@@ -33,76 +33,98 @@ const Perfil = () => {
         <h1 className="text-xl font-bold mb-4">Meu Perfil</h1>
 
         <Card>
-          <CardContent className="p-6 space-y-4">
+          <CardContent className="p-6 space-y-6">
 
-            {/* Nome */}
-            <div className="space-y-1">
-              <Label>Nome</Label>
-              {isEditing ? (
-                <Input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-              ) : (
-                <p className="text-muted-foreground">{name}</p>
-              )}
-            </div>
+  {/* Header do Perfil */}
+  <div className="flex flex-col items-center text-center gap-2">
+    <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-2xl font-bold text-primary">
+      {name.charAt(0)}
+    </div>
+    <h2 className="text-lg font-semibold">{name}</h2>
+    <p className="text-sm text-muted-foreground">{email}</p>
+  </div>
 
-            {/* Email */}
-            <div className="space-y-1">
-              <Label>Email</Label>
-              {isEditing ? (
-                <Input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              ) : (
-                <p className="text-muted-foreground">{email}</p>
-              )}
-            </div>
+  {/* Informações */}
+  <div className="space-y-4">
 
-            {/* Tipo de usuário */}
-            <div className="space-y-1">
-              <Label>Tipo</Label>
-              <p className="text-muted-foreground capitalize">
-                {currentUser.type}
-              </p>
-            </div>
+    {/* Nome */}
+    <div className="space-y-1">
+      <Label className="text-xs text-muted-foreground">Nome</Label>
+      {isEditing ? (
+        <Input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="rounded-lg"
+        />
+      ) : (
+        <div className="bg-muted/40 px-3 py-2 rounded-lg">
+          {name}
+        </div>
+      )}
+    </div>
 
-            {/* ONG (se existir) */}
-            {currentUser.type === "ong" && (
-              <div className="space-y-1">
-                <Label>Nome da ONG</Label>
-                <p className="text-muted-foreground">
-                  {currentUser.ongName}
-                </p>
-              </div>
-            )}
+    {/* Email */}
+    <div className="space-y-1">
+      <Label className="text-xs text-muted-foreground">Email</Label>
+      {isEditing ? (
+        <Input
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="rounded-lg"
+        />
+      ) : (
+        <div className="bg-muted/40 px-3 py-2 rounded-lg">
+          {email}
+        </div>
+      )}
+    </div>
 
-            {/* Ações */}
-            <div className="pt-4 flex gap-2 flex-wrap">
-              {isEditing ? (
-                <>
-                  <Button onClick={handleSave}>Salvar</Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => setIsEditing(false)}
-                  >
-                    Cancelar
-                  </Button>
-                </>
-              ) : (
-                <Button onClick={() => setIsEditing(true)}>
-                  Editar perfil
-                </Button>
-              )}
+    {/* Tipo */}
+    <div className="space-y-1">
+      <Label className="text-xs text-muted-foreground">Tipo de usuário</Label>
+      <div className="bg-muted/40 px-3 py-2 rounded-lg capitalize">
+        {currentUser.type}
+      </div>
+    </div>
 
-              <Button variant="destructive" onClick={handleLogout}>
-                Sair
-              </Button>
-            </div>
+    {/* ONG */}
+    {currentUser.type === "ong" && (
+      <div className="space-y-1">
+        <Label className="text-xs text-muted-foreground">ONG</Label>
+        <div className="bg-muted/40 px-3 py-2 rounded-lg">
+          {currentUser.ongName}
+        </div>
+      </div>
+    )}
+  </div>
 
-          </CardContent>
+  {/* Ações */}
+  <div className="pt-4 flex flex-col gap-2">
+    {isEditing ? (
+      <div className="flex gap-2">
+        <Button className="flex-1" onClick={handleSave}>
+          Salvar
+        </Button>
+        <Button
+          variant="outline"
+          className="flex-1"
+          onClick={() => setIsEditing(false)}
+        >
+          Cancelar
+        </Button>
+      </div>
+    ) : (
+      <Button onClick={() => setIsEditing(true)}>
+        Editar perfil
+      </Button>
+    )}
+
+    <Button variant="destructive" onClick={handleLogout}>
+      Sair
+    </Button>
+  </div>
+
+</CardContent>
         </Card>
       </div>
     </AppLayout>
