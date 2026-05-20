@@ -162,4 +162,17 @@ export const currentUser = {
   ongId: "1",
   ongName: "Verde Vivo",
   category: "Meio Ambiente",
+  name: "Administrador Verde Vivo",
+  email: "contato@verdevivo.org",
 };
+
+export interface User {
+  type: "ong" | "voluntario";
+  name: string;
+  email: string;
+  ongId?: string;
+  ongName?: string;
+  category?: string;
+}
+
+
