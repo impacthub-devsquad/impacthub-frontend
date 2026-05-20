@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import Logo from "@/components/Logo";
 import { Leaf } from "lucide-react";
+import { login } from "@/lib/auth";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -21,19 +22,25 @@ const Login = () => {
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       newErrors.email = "E-mail inválido";
     if (!password) newErrors.password = "Senha é obrigatória";
-    else if (password.length < 6)
-      newErrors.password = "Senha deve ter pelo menos 6 caracteres";
+    else if (password.length < 8)
+      newErrors.password = "Senha deve ter pelo menos 8 caracteres";
     return newErrors;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors = validate();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-    navigate("/home");
+
+    try {
+      await login({ email, password });
+      navigate("/home");
+    } catch (err: any) {
+      setErrors({ password: err.message || "E-mail ou senha inválidos" });
+    }
   };
 
   return (
