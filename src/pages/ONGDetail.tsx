@@ -1,10 +1,24 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Users, ArrowLeft, Calendar } from "lucide-react";
+import {
+  Users,
+  ArrowLeft,
+  Calendar,
+  MapPin,
+  CalendarDays,
+  AlertCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AppLayout from "@/components/AppLayout";
 import CategoryBadge from "@/components/CategoryBadge";
-import { getOngById, followOng, unfollowOng, type ONGDetail } from "@/lib/ongs";
+import {
+  getOngById,
+  getOngEvents,
+  followOng,
+  unfollowOng,
+  type ONGDetail,
+  type ONGEvent,
+} from "@/lib/ongs";
 import Skeleton from "@/components/Skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -16,16 +30,37 @@ const ONGDetail = () => {
   const [error, setError] = useState(false);
   const [following, setFollowing] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
+  const [events, setEvents] = useState<ONGEvent[]>([]);
 
   useEffect(() => {
     if (!ongId) return;
-    getOngById(ongId)
-      .then((data) => {
-        setOng(data);
-        setFollowing(data.isFollowing);
-      })
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
+
+    const loadData = async () => {
+      try {
+        const [ongResponse, eventsResponse] = await Promise.allSettled([
+          getOngById(ongId),
+          getOngEvents(ongId),
+        ]);
+
+        if (ongResponse.status === "fulfilled") {
+          setOng(ongResponse.value);
+          setFollowing(ongResponse.value.isFollowing);
+        } else {
+          setError(true);
+          return;
+        }
+
+        if (eventsResponse.status === "fulfilled") {
+          setEvents(eventsResponse.value);
+        } else {
+          setEvents([]);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void loadData();
   }, [ongId]);
 
   const handleFollow = async () => {
@@ -190,6 +225,80 @@ const ONGDetail = () => {
             Você é participante desta ONG.
           </div>
         )}
+
+        {/* Eventos da ONG */}
+        <section className="space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-semibold tracking-tight">Eventos</h2>
+              <p className="text-sm text-muted-foreground">
+                Confira as próximas ações e publicações desta ONG.
+              </p>
+            </div>
+            <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground">
+              <CalendarDays size={14} />
+              Até 10 eventos
+            </div>
+          </div>
+
+          {loading ? (
+            <div className="space-y-3">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <Card key={index} className="rounded-2xl">
+                  <CardContent className="p-5 space-y-3">
+                    <Skeleton variant="text" className="h-5 w-48" />
+                    <Skeleton variant="text" className="h-4 w-24" />
+                    <Skeleton variant="text" className="h-4 w-32" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : events.length === 0 ? (
+            <Card className="rounded-2xl border-dashed">
+              <CardContent className="flex flex-col items-center justify-center gap-3 p-10 text-center">
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <AlertCircle className="h-6 w-6" />
+                </div>
+                <div className="space-y-1">
+                  <p className="font-semibold">No events for this ONG yet</p>
+                  <p className="text-sm text-muted-foreground">
+                    Quando houver novos eventos, eles aparecerão aqui.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-3">
+              {events.map((event) => (
+                <Card key={event.id} className="rounded-2xl">
+                  <CardContent className="p-5">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="space-y-2">
+                        <h3 className="text-base font-semibold leading-tight">
+                          {event.name}
+                        </h3>
+                        <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+                          {event.date && (
+                            <span className="inline-flex items-center gap-1.5">
+                              <Calendar size={14} />
+                              {event.date}
+                            </span>
+                          )}
+                          {event.location && (
+                            <span className="inline-flex items-center gap-1.5">
+                              <MapPin size={14} />
+                              {event.location}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </section>
       </div>
     </AppLayout>
   );

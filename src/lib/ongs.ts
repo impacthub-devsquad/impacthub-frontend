@@ -26,6 +26,13 @@ export interface ONGDetail {
   isInvited: boolean;
 }
 
+export interface ONGEvent {
+  id: string;
+  name: string;
+  date: string;
+  location: string;
+}
+
 export interface CreateOngPayload {
   name: string;
   title: string;
@@ -46,6 +53,36 @@ function mapOng(raw: any): ONG {
   };
 }
 
+function mapOngEvent(raw: Record<string, unknown>): ONGEvent {
+  const name =
+    typeof raw.title === "string"
+      ? raw.title
+      : typeof raw.name === "string"
+        ? raw.name
+        : "Evento";
+  const date =
+    typeof raw.date === "string"
+      ? raw.date
+      : typeof raw.createdAt === "string"
+        ? new Date(raw.createdAt).toLocaleDateString("pt-BR")
+        : "";
+  const location =
+    typeof raw.location === "string"
+      ? raw.location
+      : typeof raw.city === "string"
+        ? raw.city
+        : typeof raw.place === "string"
+          ? raw.place
+          : "";
+
+  return {
+    id: typeof raw.id === "string" ? raw.id : crypto.randomUUID(),
+    name,
+    date,
+    location,
+  };
+}
+
 export async function getOngs(): Promise<ONG[]> {
   const response = await api.get<any>("/api/v1/ongs?page=0&size=20");
   const list = response?.data?.content ?? response?.data ?? [];
@@ -55,6 +92,23 @@ export async function getOngs(): Promise<ONG[]> {
 export async function getOngById(ongId: string): Promise<ONGDetail> {
   const response = await api.get<any>(`/api/v1/ongs/${ongId}`);
   return response?.data;
+}
+
+export async function getOngEvents(ongId: string): Promise<ONGEvent[]> {
+  const response = await api.get<{ data?: unknown }>(
+    `/api/v1/ongs/${ongId}/events?page=0&size=10`,
+  );
+
+  const data = response?.data;
+  const list = Array.isArray(data)
+    ? data
+    : data &&
+        typeof data === "object" &&
+        Array.isArray((data as { content?: unknown }).content)
+      ? (data as { content: Record<string, unknown>[] }).content
+      : [];
+
+  return list.map(mapOngEvent);
 }
 
 export async function createOng(payload: CreateOngPayload): Promise<string> {
