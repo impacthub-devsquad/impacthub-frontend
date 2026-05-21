@@ -1,4 +1,5 @@
 import { MapPin, Users } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import CategoryBadge from "./CategoryBadge";
@@ -7,10 +8,12 @@ import { followOng, unfollowOng } from "@/lib/ongs";
 import { useState } from "react";
 
 const ONGCard = ({ ong }: { ong: ONG }) => {
+  const navigate = useNavigate();
   const [following, setFollowing] = useState(ong.isFollowing);
   const [loading, setLoading] = useState(false);
 
-  const handleFollow = async () => {
+  const handleFollow = async (e: React.MouseEvent) => {
+    e.stopPropagation();
     setLoading(true);
     try {
       if (following) {
@@ -27,7 +30,10 @@ const ONGCard = ({ ong }: { ong: ONG }) => {
   };
 
   return (
-    <Card className="shadow-sm hover:shadow-md transition-shadow">
+    <Card
+      className="shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+      onClick={() => navigate(`/ongs/${ong.id}`)}
+    >
       <CardContent className="p-5">
         <div className="flex items-start gap-3 mb-3">
           <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold text-lg shrink-0">

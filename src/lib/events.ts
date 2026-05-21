@@ -66,3 +66,7 @@ export async function likeEvent(eventId: string): Promise<void> {
 export async function unlikeEvent(eventId: string): Promise<void> {
   await api.delete(`/api/v1/events/${eventId}/likes/me`);
 }
+
+export async function viewEvent(eventId: string): Promise<void> {
+  await api.post(`/api/v1/events/${eventId}/views/me`, {});
+}

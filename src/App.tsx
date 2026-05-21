@@ -12,6 +12,7 @@ import ForgotPassword from "./pages/ForgotPassword.tsx";
 import Notifications from "./pages/Notifications.tsx";
 import Perfil from "./pages/Perfil.tsx";
 import ONGDashboard from "./pages/ONGDashboard.tsx";
+import ONGDetail from "./pages/ONGDetail.tsx";
 
 const queryClient = new QueryClient();
 
@@ -96,6 +97,16 @@ const App = () => (
               </PrivateRoute>
             }
           />
+
+          <Route
+            path="/ongs/:ongId"
+            element={
+              <PrivateRoute>
+                <ONGDetail />
+              </PrivateRoute>
+            }
+          />
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

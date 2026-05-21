@@ -11,6 +11,21 @@ export interface ONG {
   isFollowing: boolean;
 }
 
+export interface ONGDetail {
+  ongId: string;
+  userOwnerId: string;
+  name: string;
+  title: string;
+  description: string;
+  category: string;
+  createdAt: string;
+  participantsCount: number;
+  followersCount: number;
+  isParticipant: boolean;
+  isFollowing: boolean;
+  isInvited: boolean;
+}
+
 export interface CreateOngPayload {
   name: string;
   title: string;
@@ -35,6 +50,11 @@ export async function getOngs(): Promise<ONG[]> {
   const response = await api.get<any>("/api/v1/ongs?page=0&size=20");
   const list = response?.data?.content ?? response?.data ?? [];
   return list.map(mapOng);
+}
+
+export async function getOngById(ongId: string): Promise<ONGDetail> {
+  const response = await api.get<any>(`/api/v1/ongs/${ongId}`);
+  return response?.data;
 }
 
 export async function createOng(payload: CreateOngPayload): Promise<string> {

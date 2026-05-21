@@ -1,11 +1,11 @@
 import { Heart, MessageCircle, Share2, Send } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import CategoryBadge from "./CategoryBadge";
 import type { Event } from "@/lib/events";
-import { likeEvent, unlikeEvent } from "@/lib/events";
+import { likeEvent, unlikeEvent, viewEvent } from "@/lib/events";
 
 const PostCard = ({ post }: { post: Event }) => {
   const [liked, setLiked] = useState(post.isLiked ?? false);
@@ -14,6 +14,10 @@ const PostCard = ({ post }: { post: Event }) => {
   const [comments, setComments] = useState<string[]>([]);
   const [newComment, setNewComment] = useState("");
   const [shared, setShared] = useState(false);
+
+  useEffect(() => {
+    viewEvent(post.id).catch(() => {});
+  }, [post.id]);
 
   const handleLike = async () => {
     try {
