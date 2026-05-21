@@ -21,9 +21,11 @@ export interface User {
 
 export async function login(data: LoginRequest): Promise<void> {
   const response = await api.post<any>("/api/v1/auth/login", data);
-  const token = response?.data?.accessToken;
-  if (!token) throw new Error("Token não recebido");
-  localStorage.setItem("token", token);
+  const accessToken = response?.data?.accessToken;
+  const refreshToken = response?.data?.refreshToken;
+  if (!accessToken) throw new Error("Token não recebido");
+  localStorage.setItem("token", accessToken);
+  if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
 }
 
 export async function register(data: RegisterRequest): Promise<void> {
@@ -33,6 +35,7 @@ export async function register(data: RegisterRequest): Promise<void> {
 
 export function logout() {
   localStorage.removeItem("token");
+  localStorage.removeItem("refreshToken");
 }
 
 export function getToken() {

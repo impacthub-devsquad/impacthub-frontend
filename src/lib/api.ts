@@ -6,17 +6,18 @@ const PUBLIC_ROUTES = [
   "/api/v1/auth/refresh",
 ];
 
-async function refreshToken(): Promise<string> {
-  const token = localStorage.getItem("token");
+async function refreshAccessToken(): Promise<string> {
+  const refreshToken = localStorage.getItem("refreshToken");
   const response = await fetch(`${BASE_URL}/api/v1/auth/refresh`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ accessToken: token }),
+    body: JSON.stringify({ refreshToken }),
   });
 
   if (!response.ok) {
     localStorage.removeItem("token");
-    window.location.href = "/login";
+    localStorage.removeItem("refreshToken");
+    window.location.href = "/";
     throw new Error("Sessão expirada. Faça login novamente.");
   }
 
@@ -55,13 +56,12 @@ async function request<T>(
 
     console.warn(`[API] ${response.status} em ${path}`, error);
 
-    // Token expirado — tenta refresh e repete uma vez
     if (
       retry &&
       !isPublic &&
       (response.status === 401 || error?.message === "Access Token expired")
     ) {
-      await refreshToken();
+      await refreshAccessToken();
       return request<T>(path, options, false);
     }
 

@@ -105,9 +105,10 @@ const ONGDashboard = () => {
   }, []);
 
   const ownedEvents = useMemo(() => {
-    if (!currentUser) return [];
-    return events.filter((event) => event.ongId === currentUser.id);
-  }, [currentUser, events]);
+    const ongId = localStorage.getItem("ongId");
+    if (!ongId) return events;
+    return events.filter((event) => event.ongId === ongId);
+  }, [events]);
 
   const openCreateDialog = () => {
     setEditingEvent(null);
