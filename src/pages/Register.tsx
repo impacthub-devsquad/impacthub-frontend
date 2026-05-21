@@ -7,6 +7,25 @@ import { Label } from "@/components/ui/label";
 import Logo from "@/components/Logo";
 import { Leaf } from "lucide-react";
 import { register } from "@/lib/auth";
+import { createOng } from "@/lib/ongs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const ONG_CATEGORIES = [
+  { value: "education", label: "Educação" },
+  { value: "health", label: "Saúde" },
+  { value: "environment", label: "Meio Ambiente" },
+  { value: "animal_welfare", label: "Bem-estar Animal" },
+  { value: "human_rights", label: "Direitos Humanos" },
+  { value: "poverty_alleviation", label: "Combate à Pobreza" },
+  { value: "arts_and_culture", label: "Arte e Cultura" },
+  { value: "sports_and_recreation", label: "Esporte e Lazer" },
+];
 
 type Errors = {
   name?: string;
@@ -14,6 +33,7 @@ type Errors = {
   password?: string;
   confirmPassword?: string;
   ongName?: string;
+  ongCategory?: string;
 };
 
 const Register = () => {
@@ -23,6 +43,7 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [ongName, setOngName] = useState("");
+  const [ongCategory, setOngCategory] = useState("");
   const [errors, setErrors] = useState<Errors>({});
   const navigate = useNavigate();
 
@@ -38,8 +59,10 @@ const Register = () => {
     if (!confirmPassword) newErrors.confirmPassword = "Confirme sua senha";
     else if (password !== confirmPassword)
       newErrors.confirmPassword = "As senhas não coincidem";
-    if (userType === "ong" && !ongName.trim())
-      newErrors.ongName = "Nome da ONG é obrigatório";
+    if (userType === "ong") {
+      if (!ongName.trim()) newErrors.ongName = "Nome da ONG é obrigatório";
+      if (!ongCategory) newErrors.ongCategory = "Selecione uma categoria";
+    }
     return newErrors;
   };
 
@@ -53,6 +76,17 @@ const Register = () => {
 
     try {
       await register({ username: name, email, password });
+
+      if (userType === "ong") {
+        const ongId = await createOng({
+          name: ongName,
+          title: ongName,
+          description: `ONG ${ongName}`,
+          category: ongCategory,
+        });
+        localStorage.setItem("ongId", ongId);
+      }
+
       navigate("/home");
     } catch (err: any) {
       setErrors({ email: err.message || "Erro ao criar conta" });
@@ -176,21 +210,50 @@ const Register = () => {
             </div>
 
             {userType === "ong" && (
-              <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
-                <Label htmlFor="ong-name">Nome da ONG</Label>
-                <Input
-                  id="ong-name"
-                  placeholder="Nome da organização"
-                  value={ongName}
-                  onChange={(e) => {
-                    setOngName(e.target.value);
-                    clearError("ongName");
-                  }}
-                  className={`focus-visible:ring-primary ${errors.ongName ? "border-red-500" : ""}`}
-                />
-                {errors.ongName && (
-                  <p className="text-red-500 text-xs">{errors.ongName}</p>
-                )}
+              <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
+                <div className="space-y-2">
+                  <Label htmlFor="ong-name">Nome da ONG</Label>
+                  <Input
+                    id="ong-name"
+                    placeholder="Nome da organização"
+                    value={ongName}
+                    onChange={(e) => {
+                      setOngName(e.target.value);
+                      clearError("ongName");
+                    }}
+                    className={`focus-visible:ring-primary ${errors.ongName ? "border-red-500" : ""}`}
+                  />
+                  {errors.ongName && (
+                    <p className="text-red-500 text-xs">{errors.ongName}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Categoria da ONG</Label>
+                  <Select
+                    value={ongCategory}
+                    onValueChange={(val) => {
+                      setOngCategory(val);
+                      clearError("ongCategory");
+                    }}
+                  >
+                    <SelectTrigger
+                      className={errors.ongCategory ? "border-red-500" : ""}
+                    >
+                      <SelectValue placeholder="Selecione uma categoria" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ONG_CATEGORIES.map((cat) => (
+                        <SelectItem key={cat.value} value={cat.value}>
+                          {cat.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.ongCategory && (
+                    <p className="text-red-500 text-xs">{errors.ongCategory}</p>
+                  )}
+                </div>
               </div>
             )}
 

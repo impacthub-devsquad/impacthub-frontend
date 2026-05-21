@@ -1,7 +1,6 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, Search, Bell, User } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Home, Search, Bell, User, LayoutDashboard } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import Logo from "./Logo";
 
@@ -9,6 +8,7 @@ const navItems = [
   { icon: Home, label: "Home", path: "/home" },
   { icon: Search, label: "Buscar ONGs", path: "/buscar" },
   { icon: Bell, label: "Notificações", path: "/notificacoes" },
+  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
   { icon: User, label: "Perfil", path: "/perfil" },
 ];
 

@@ -1,27 +1,42 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AppLayout from "@/components/AppLayout";
 import PostCard from "@/components/PostCard";
-import CreatePost from "@/components/CreatePost";
-import { mockPosts, currentUser } from "@/data/mockData";
-import type { Post } from "@/data/mockData";
+import { getEvents } from "@/lib/events";
+import type { Event } from "@/lib/events";
 
 const Home = () => {
-  const [posts, setPosts] = useState<Post[]>(mockPosts);
+  const [posts, setPosts] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleNewPost = (post: Post) => {
-    setPosts((prev) => [post, ...prev]);
-  };
+  useEffect(() => {
+    getEvents()
+      .then(setPosts)
+      .catch(() => setError("Erro ao carregar o feed."))
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <AppLayout>
       <div className="max-w-xl mx-auto space-y-4 w-full">
         <h1 className="text-xl font-bold mb-2">Feed</h1>
 
-        {currentUser.type === "ong" && <CreatePost onPost={handleNewPost} />}
+        {loading && (
+          <p className="text-center text-muted-foreground py-12">
+            Carregando feed...
+          </p>
+        )}
+        {error && <p className="text-center text-red-500 py-12">{error}</p>}
 
-        {posts.map((post) => (
-          <PostCard key={post.id} post={post} />
-        ))}
+        {!loading &&
+          !error &&
+          posts.map((post) => <PostCard key={post.id} post={post} />)}
+
+        {!loading && !error && posts.length === 0 && (
+          <p className="text-center text-muted-foreground py-12">
+            Nenhum evento no feed ainda.
+          </p>
+        )}
       </div>
     </AppLayout>
   );

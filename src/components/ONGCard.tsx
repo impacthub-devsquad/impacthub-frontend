@@ -2,11 +2,29 @@ import { MapPin, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import CategoryBadge from "./CategoryBadge";
-import type { ONG } from "@/data/mockData";
+import type { ONG } from "@/lib/ongs";
+import { followOng, unfollowOng } from "@/lib/ongs";
 import { useState } from "react";
 
 const ONGCard = ({ ong }: { ong: ONG }) => {
-  const [following, setFollowing] = useState(false);
+  const [following, setFollowing] = useState(ong.isFollowing);
+  const [loading, setLoading] = useState(false);
+
+  const handleFollow = async () => {
+    setLoading(true);
+    try {
+      if (following) {
+        await unfollowOng(ong.id);
+      } else {
+        await followOng(ong.id);
+      }
+      setFollowing(!following);
+    } catch (e) {
+      console.error("Erro ao seguir/deixar de seguir ONG", e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Card className="shadow-sm hover:shadow-md transition-shadow">
@@ -17,26 +35,31 @@ const ONGCard = ({ ong }: { ong: ONG }) => {
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-semibold truncate">{ong.name}</p>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <MapPin size={12} />
-              <span>{ong.city}</span>
-            </div>
+            {ong.city && (
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <MapPin size={12} />
+                <span>{ong.city}</span>
+              </div>
+            )}
           </div>
         </div>
         <CategoryBadge category={ong.category} />
-        <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{ong.description}</p>
+        <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+          {ong.description}
+        </p>
         <div className="flex items-center justify-between mt-4">
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <Users size={14} />
-            <span>{ong.followers.toLocaleString()} seguidores</span>
+            <span>{(ong.followers ?? 0).toLocaleString()} seguidores</span>
           </div>
           <Button
             size="sm"
             variant={following ? "secondary" : "default"}
-            onClick={() => setFollowing(!following)}
+            onClick={handleFollow}
+            disabled={loading}
             className="rounded-full text-xs px-4"
           >
-            {following ? "Seguindo" : "Seguir"}
+            {loading ? "..." : following ? "Seguindo" : "Seguir"}
           </Button>
         </div>
       </CardContent>

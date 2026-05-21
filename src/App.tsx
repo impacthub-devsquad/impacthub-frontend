@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound.tsx";
 import ForgotPassword from "./pages/ForgotPassword.tsx";
 import Notifications from "./pages/Notifications.tsx";
 import Perfil from "./pages/Perfil.tsx";
+import ONGDashboard from "./pages/ONGDashboard.tsx";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/buscar" element={<SearchONGs />} />
           <Route path="/notificacoes" element={<Notifications />} />
           <Route path="/perfil" element={<Perfil />} />
+          <Route path="/dashboard" element={<ONGDashboard />} />
           <Route path="/recuperar-senha" element={<ForgotPassword />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
