@@ -89,6 +89,40 @@ export async function getOngs(): Promise<ONG[]> {
   return list.map(mapOng);
 }
 
+function extractCategoryList(data: unknown): string[] {
+  if (Array.isArray(data)) {
+    return data
+      .map((item) => {
+        if (typeof item === "string") {
+          return item;
+        }
+
+        if (item && typeof item === "object") {
+          const record = item as Record<string, unknown>;
+          const value = record.category ?? record.name ?? record.title;
+          return typeof value === "string" ? value : null;
+        }
+
+        return null;
+      })
+      .filter((item): item is string => Boolean(item));
+  }
+
+  if (data && typeof data === "object") {
+    const record = data as { content?: unknown };
+    if (Array.isArray(record.content)) {
+      return extractCategoryList(record.content);
+    }
+  }
+
+  return [];
+}
+
+export async function getOngCategories(): Promise<string[]> {
+  const response = await api.get<{ data?: unknown }>("/api/v1/ong-categories");
+  return extractCategoryList(response?.data);
+}
+
 export async function getOngById(ongId: string): Promise<ONGDetail> {
   const response = await api.get<any>(`/api/v1/ongs/${ongId}`);
   return response?.data;

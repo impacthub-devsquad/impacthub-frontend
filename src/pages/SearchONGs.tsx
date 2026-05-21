@@ -4,16 +4,17 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import AppLayout from "@/components/AppLayout";
 import ONGCard from "@/components/ONGCard";
-import { categories } from "@/data/mockData";
-import { getOngs } from "@/lib/ongs";
+import { getOngCategories, getOngs } from "@/lib/ongs";
 import type { ONG } from "@/lib/ongs";
 import Skeleton from "@/components/Skeleton";
 
 const SearchONGs = () => {
   const [query, setQuery] = useState("");
-  const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const [activeFilter, setActiveFilter] = useState("Todas");
   const [ongs, setOngs] = useState<ONG[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -21,17 +22,24 @@ const SearchONGs = () => {
       .then(setOngs)
       .catch(() => setError("Erro ao carregar ONGs."))
       .finally(() => setLoading(false));
+
+    getOngCategories()
+      .then(setCategories)
+      .catch(() => setCategories([]))
+      .finally(() => setCategoriesLoading(false));
   }, []);
 
   const filtered = ongs.filter((ong) => {
     const matchesQuery =
       ong.name.toLowerCase().includes(query.toLowerCase()) ||
       ong.description.toLowerCase().includes(query.toLowerCase());
-    const matchesFilter = !activeFilter || ong.category === activeFilter;
+    const matchesFilter =
+      activeFilter === "Todas" || ong.category === activeFilter;
     return matchesQuery && matchesFilter;
   });
 
   const skeletonItems = Array.from({ length: 4 });
+  const categorySkeletonItems = Array.from({ length: 6 });
 
   return (
     <AppLayout>
@@ -58,28 +66,38 @@ const SearchONGs = () => {
 
         <div className="flex gap-2 flex-wrap">
           <button
-            onClick={() => setActiveFilter(null)}
+            onClick={() => setActiveFilter("Todas")}
             className={`h-9 px-4 rounded-full text-xs font-medium transition-all ${
-              !activeFilter
+              activeFilter === "Todas"
                 ? "bg-primary text-primary-foreground shadow-sm"
                 : "bg-muted text-muted-foreground hover:bg-muted/80"
             }`}
           >
             Todas
           </button>
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveFilter(activeFilter === cat ? null : cat)}
-              className={`h-9 px-4 rounded-full text-xs font-medium transition-all ${
-                activeFilter === cat
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
+          {categoriesLoading
+            ? categorySkeletonItems.map((_, index) => (
+                <Skeleton
+                  key={index}
+                  variant="text"
+                  className="h-9 w-24 rounded-full"
+                />
+              ))
+            : categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() =>
+                    setActiveFilter(activeFilter === cat ? "Todas" : cat)
+                  }
+                  className={`h-9 px-4 rounded-full text-xs font-medium transition-all ${
+                    activeFilter === cat
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
         </div>
 
         {loading && (

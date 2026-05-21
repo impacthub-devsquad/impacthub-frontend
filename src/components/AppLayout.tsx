@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Logo from "./Logo";
 import Skeleton from "@/components/Skeleton";
 import { getMe, type User as LoggedUser } from "@/lib/auth";
+import { useNavigate } from "react-router-dom";
 
 const navItems = [
   { icon: Home, label: "Home", path: "/home" },
@@ -16,6 +17,7 @@ const navItems = [
 
 const AppLayout = ({ children }: { children: ReactNode }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [user, setUser] = useState<LoggedUser | null>(null);
   const [userLoading, setUserLoading] = useState(true);
 
@@ -54,19 +56,26 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
           </Link>
           <div className="flex-1" />
           <Avatar className="w-9 h-9 cursor-pointer ml-auto ring-2 ring-transparent transition-shadow hover:shadow-md">
-            {userLoading ? (
-              <Skeleton variant="circle" className="h-9 w-9" />
-            ) : (
-              <>
-                <AvatarImage
-                  src={avatarSrc}
-                  alt={user?.name || user?.username || "Usuário logado"}
-                />
-                <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
-                  {avatarFallback}
-                </AvatarFallback>
-              </>
-            )}
+            <button
+              type="button"
+              className="h-full w-full rounded-full"
+              onClick={() => navigate("/perfil")}
+              aria-label="Abrir meu perfil"
+            >
+              {userLoading ? (
+                <Skeleton variant="circle" className="h-9 w-9" />
+              ) : (
+                <>
+                  <AvatarImage
+                    src={avatarSrc}
+                    alt={user?.name || user?.username || "Usuário logado"}
+                  />
+                  <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                    {avatarFallback}
+                  </AvatarFallback>
+                </>
+              )}
+            </button>
           </Avatar>
         </div>
       </header>

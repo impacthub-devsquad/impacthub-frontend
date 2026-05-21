@@ -1,23 +1,45 @@
 import { Heart, MessageCircle, Share2, Send } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, type MouseEvent } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import CategoryBadge from "./CategoryBadge";
 import type { Event } from "@/lib/events";
-import { likeEvent, unlikeEvent, viewEvent } from "@/lib/events";
+import {
+  createEventComment,
+  likeEvent,
+  unlikeEvent,
+  viewEvent,
+} from "@/lib/events";
+
+type LocalComment = {
+  id: string;
+  content: string;
+};
 
 const PostCard = ({ post }: { post: Event }) => {
+  const navigate = useNavigate();
   const [liked, setLiked] = useState(post.isLiked ?? false);
   const [likes, setLikes] = useState(post.likes);
   const [showComments, setShowComments] = useState(false);
-  const [comments, setComments] = useState<string[]>([]);
+  const [comments, setComments] = useState<LocalComment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [shared, setShared] = useState(false);
+  const [commentError, setCommentError] = useState<string | null>(null);
+  const [commentLoading, setCommentLoading] = useState(false);
 
   useEffect(() => {
     viewEvent(post.id).catch(() => {});
   }, [post.id]);
+
+  const openPost = () => {
+    navigate(`/events/${post.id}`);
+  };
+
+  const stopCardNavigation = (event: MouseEvent) => {
+    event.stopPropagation();
+  };
 
   const handleLike = async () => {
     const nextLiked = !liked;
@@ -39,10 +61,34 @@ const PostCard = ({ post }: { post: Event }) => {
     }
   };
 
-  const handleComment = () => {
-    if (newComment.trim()) {
-      setComments((prev) => [...prev, newComment.trim()]);
-      setNewComment("");
+  const handleComment = async () => {
+    const trimmedComment = newComment.trim();
+
+    if (!trimmedComment || commentLoading) {
+      return;
+    }
+
+    const optimisticComment = {
+      id: `local-${Date.now()}`,
+      content: trimmedComment,
+    };
+
+    setCommentError(null);
+    setCommentLoading(true);
+    setComments((prev) => [...prev, optimisticComment]);
+    setNewComment("");
+
+    try {
+      await createEventComment(post.id, { content: trimmedComment });
+    } catch (err) {
+      setComments((prev) =>
+        prev.filter((comment) => comment.id !== optimisticComment.id),
+      );
+      setNewComment(trimmedComment);
+      setCommentError("Não foi possível salvar o comentário.");
+      console.error("Erro ao salvar comentário:", err);
+    } finally {
+      setCommentLoading(false);
     }
   };
 
@@ -53,7 +99,18 @@ const PostCard = ({ post }: { post: Event }) => {
   };
 
   return (
-    <Card className="transition-all duration-200 hover:-translate-y-0.5">
+    <Card
+      className="cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md rounded-2xl"
+      onClick={openPost}
+      role="link"
+      tabIndex={0}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          openPost();
+        }
+      }}
+    >
       <CardContent className="p-5 sm:p-6">
         {/* Header */}
         <div className="flex items-center gap-3 mb-4">
@@ -73,7 +130,12 @@ const PostCard = ({ post }: { post: Event }) => {
 
         {/* Título */}
         {post.title && (
-          <p className="font-semibold text-sm mb-1">{post.title}</p>
+          <p
+            className="font-semibold text-sm mb-1"
+            onClick={stopCardNavigation}
+          >
+            {post.title}
+          </p>
         )}
 
         {/* Conteúdo */}
@@ -82,7 +144,10 @@ const PostCard = ({ post }: { post: Event }) => {
         </p>
 
         {/* Botões */}
-        <div className="flex items-center gap-2 sm:gap-4 pt-4 border-t flex-wrap">
+        <div
+          className="flex items-center gap-2 sm:gap-4 pt-4 border-t flex-wrap"
+          onClick={stopCardNavigation}
+        >
           <Button
             variant="ghost"
             size="sm"
@@ -114,16 +179,19 @@ const PostCard = ({ post }: { post: Event }) => {
 
         {/* Seção de comentários */}
         {showComments && (
-          <div className="mt-4 space-y-3 animate-in fade-in slide-in-from-top-2">
+          <div
+            className="mt-4 space-y-3 animate-in fade-in slide-in-from-top-2"
+            onClick={stopCardNavigation}
+          >
             {comments.length > 0 && (
               <div className="space-y-2">
                 {comments.map((comment, index) => (
-                  <div key={index} className="flex gap-2 items-start">
+                  <div key={comment.id} className="flex gap-2 items-start">
                     <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs shrink-0">
                       U
                     </div>
                     <div className="bg-muted rounded-xl px-3 py-2 text-sm flex-1">
-                      {comment}
+                      {comment.content}
                     </div>
                   </div>
                 ))}
@@ -144,18 +212,22 @@ const PostCard = ({ post }: { post: Event }) => {
                 placeholder="Escreva um comentário..."
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
+                onClick={stopCardNavigation}
                 onKeyDown={(e) => e.key === "Enter" && handleComment()}
                 className="rounded-full text-sm h-8 focus-visible:ring-primary"
               />
               <Button
                 size="sm"
                 onClick={handleComment}
-                disabled={!newComment.trim()}
+                disabled={!newComment.trim() || commentLoading}
                 className="rounded-full h-8 w-8 p-0"
               >
                 <Send size={14} />
               </Button>
             </div>
+            {commentError && (
+              <p className="text-xs text-destructive">{commentError}</p>
+            )}
           </div>
         )}
       </CardContent>

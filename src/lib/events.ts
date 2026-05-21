@@ -20,6 +20,10 @@ export interface EventPayload {
   description: string;
 }
 
+export interface CommentPayload {
+  content: string;
+}
+
 export type EventUpdatePayload = Partial<EventPayload>;
 
 function mapEvent(raw: any): Event {
@@ -42,6 +46,13 @@ export async function getEvents(): Promise<Event[]> {
   const response = await api.get<any>("/api/v1/events?page=0&size=20");
   const list = response?.data?.content ?? [];
   return list.map(mapEvent);
+}
+
+export async function getPostById(postId: string): Promise<Event> {
+  const response = await api.get<{ data?: unknown }>(
+    `/api/v1/events/${postId}`,
+  );
+  return mapEvent(response?.data as Record<string, unknown>);
 }
 
 export async function createEvent(payload: EventPayload): Promise<void> {
@@ -69,4 +80,11 @@ export async function unlikeEvent(eventId: string): Promise<void> {
 
 export async function viewEvent(eventId: string): Promise<void> {
   await api.post(`/api/v1/events/${eventId}/views/me`, {});
+}
+
+export async function createEventComment(
+  eventId: string,
+  payload: CommentPayload,
+): Promise<void> {
+  await api.post(`/api/v1/events/${eventId}/comments`, payload);
 }
