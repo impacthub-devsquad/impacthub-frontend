@@ -17,6 +17,8 @@ export interface User {
   username: string;
   name: string;
   email: string;
+  avatar?: string;
+  profilePicture?: string;
 }
 
 export async function login(data: LoginRequest): Promise<void> {

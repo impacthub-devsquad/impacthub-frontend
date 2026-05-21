@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
+import Skeleton from "@/components/Skeleton";
 import { getMe, logout, User } from "@/lib/auth";
 import { api } from "@/lib/api";
 
@@ -60,24 +60,24 @@ const Perfil = () => {
     return (
       <AppLayout>
         <div className="max-w-2xl mx-auto w-full space-y-4">
-          <Skeleton className="h-8 w-40 rounded-full" />
-          <Card>
+          <Skeleton variant="text" className="h-8 w-40" />
+          <Card className="rounded-2xl">
             <CardContent className="p-6 space-y-6">
               <div className="flex flex-col items-center text-center gap-3">
-                <Skeleton className="h-20 w-20 rounded-full" />
-                <Skeleton className="h-5 w-32 rounded-full" />
-                <Skeleton className="h-4 w-44 rounded-full" />
+                <Skeleton variant="circle" className="h-20 w-20" />
+                <Skeleton variant="text" className="h-5 w-32" />
+                <Skeleton variant="text" className="h-4 w-44" />
               </div>
 
               <div className="space-y-4">
-                <Skeleton className="h-11 w-full rounded-xl" />
-                <Skeleton className="h-11 w-full rounded-xl" />
-                <Skeleton className="h-24 w-full rounded-xl" />
+                <Skeleton variant="rect" className="h-11 w-full" />
+                <Skeleton variant="rect" className="h-11 w-full" />
+                <Skeleton variant="rect" className="h-24 w-full" />
               </div>
 
               <div className="grid gap-2 sm:grid-cols-2">
-                <Skeleton className="h-11 w-full rounded-full" />
-                <Skeleton className="h-11 w-full rounded-full" />
+                <Skeleton variant="text" className="h-11 w-full" />
+                <Skeleton variant="text" className="h-11 w-full" />
               </div>
             </CardContent>
           </Card>
@@ -97,7 +97,7 @@ const Perfil = () => {
             Atualize suas informações básicas e mantenha seus dados em dia.
           </p>
         </div>
-        <Card>
+        <Card className="rounded-2xl">
           <CardContent className="p-6 space-y-6">
             <div className="flex flex-col items-center text-center gap-2">
               <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-2xl font-bold text-primary ring-4 ring-primary/5">
@@ -120,10 +120,10 @@ const Perfil = () => {
                     onChange={(e) =>
                       setFormData({ ...formData, username: e.target.value })
                     }
-                    className="rounded-lg"
+                    className="rounded-xl"
                   />
                 ) : (
-                  <div className="bg-muted/40 px-3 py-2 rounded-lg">
+                  <div className="bg-muted/40 px-3 py-2 rounded-xl">
                     {userData.username}
                   </div>
                 )}
@@ -133,7 +133,7 @@ const Perfil = () => {
                 <Label className="text-xs font-medium text-muted-foreground">
                   Email
                 </Label>
-                <div className="bg-muted/40 px-3 py-2 rounded-lg text-muted-foreground">
+                <div className="bg-muted/40 px-3 py-2 rounded-xl text-muted-foreground">
                   {userData.email}
                 </div>
               </div>
@@ -149,11 +149,11 @@ const Perfil = () => {
                       setFormData({ ...formData, description: e.target.value })
                     }
                     placeholder="Fale um pouco sobre você..."
-                    className="rounded-lg resize-none"
+                    className="rounded-xl resize-none"
                     rows={3}
                   />
                 ) : (
-                  <div className="bg-muted/40 px-3 py-2 rounded-lg text-sm text-muted-foreground min-h-[60px]">
+                  <div className="bg-muted/40 px-3 py-2 rounded-xl text-sm text-muted-foreground min-h-[60px]">
                     {formData.description || "Sem descrição"}
                   </div>
                 )}

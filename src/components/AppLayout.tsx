@@ -1,8 +1,10 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Home, Search, Bell, User, LayoutDashboard } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Logo from "./Logo";
+import Skeleton from "@/components/Skeleton";
+import { getMe, type User as LoggedUser } from "@/lib/auth";
 
 const navItems = [
   { icon: Home, label: "Home", path: "/home" },
@@ -14,6 +16,33 @@ const navItems = [
 
 const AppLayout = ({ children }: { children: ReactNode }) => {
   const location = useLocation();
+  const [user, setUser] = useState<LoggedUser | null>(null);
+  const [userLoading, setUserLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+
+    getMe()
+      .then((me) => {
+        if (mounted) setUser(me);
+      })
+      .catch(() => {
+        if (mounted) setUser(null);
+      })
+      .finally(() => {
+        if (mounted) setUserLoading(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const avatarSrc = user?.avatar || user?.profilePicture || "";
+  const avatarFallback = useMemo(() => {
+    const label = user?.name?.trim() || user?.username?.trim() || "U";
+    return label.charAt(0).toUpperCase();
+  }, [user]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -25,9 +54,19 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
           </Link>
           <div className="flex-1" />
           <Avatar className="w-9 h-9 cursor-pointer ml-auto ring-2 ring-transparent transition-shadow hover:shadow-md">
-            <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
-              U
-            </AvatarFallback>
+            {userLoading ? (
+              <Skeleton variant="circle" className="h-9 w-9" />
+            ) : (
+              <>
+                <AvatarImage
+                  src={avatarSrc}
+                  alt={user?.name || user?.username || "Usuário logado"}
+                />
+                <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                  {avatarFallback}
+                </AvatarFallback>
+              </>
+            )}
           </Avatar>
         </div>
       </header>

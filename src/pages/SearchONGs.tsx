@@ -2,12 +2,12 @@ import { useState, useEffect } from "react";
 import { Search, SearchX } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import AppLayout from "@/components/AppLayout";
 import ONGCard from "@/components/ONGCard";
 import { categories } from "@/data/mockData";
 import { getOngs } from "@/lib/ongs";
 import type { ONG } from "@/lib/ongs";
+import Skeleton from "@/components/Skeleton";
 
 const SearchONGs = () => {
   const [query, setQuery] = useState("");
@@ -85,23 +85,29 @@ const SearchONGs = () => {
         {loading && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {skeletonItems.map((_, index) => (
-              <Card key={index}>
+              <Card key={index} className="rounded-2xl">
                 <CardContent className="p-5 space-y-4">
                   <div className="flex items-start gap-3">
-                    <Skeleton className="h-12 w-12 rounded-2xl" />
+                    <Skeleton
+                      variant="circle"
+                      className="h-12 w-12 rounded-2xl"
+                    />
                     <div className="flex-1 space-y-2">
-                      <Skeleton className="h-4 w-32 rounded-full" />
-                      <Skeleton className="h-3 w-20 rounded-full" />
+                      <Skeleton variant="text" className="w-32" />
+                      <Skeleton variant="text" className="h-3 w-20" />
                     </div>
                   </div>
-                  <Skeleton className="h-6 w-24 rounded-full" />
+                  <Skeleton variant="text" className="h-6 w-24" />
                   <div className="space-y-2">
-                    <Skeleton className="h-4 w-full rounded-full" />
-                    <Skeleton className="h-4 w-5/6 rounded-full" />
+                    <Skeleton variant="text" className="w-full" />
+                    <Skeleton variant="text" className="w-5/6" />
                   </div>
                   <div className="flex items-center justify-between gap-3">
-                    <Skeleton className="h-4 w-24 rounded-full" />
-                    <Skeleton className="h-9 w-24 rounded-full" />
+                    <Skeleton variant="text" className="h-4 w-24" />
+                    <Skeleton
+                      variant="text"
+                      className="h-9 w-24 rounded-full"
+                    />
                   </div>
                 </CardContent>
               </Card>
@@ -109,7 +115,7 @@ const SearchONGs = () => {
           </div>
         )}
         {error && (
-          <Card className="border-destructive/30 bg-destructive/5">
+          <Card className="rounded-2xl border-destructive/30 bg-destructive/5">
             <CardContent className="flex items-center gap-3 p-5 text-sm text-destructive">
               <SearchX className="h-5 w-5 shrink-0" />
               <span>{error}</span>
@@ -123,7 +129,7 @@ const SearchONGs = () => {
               <ONGCard key={ong.id} ong={ong} />
             ))}
             {filtered.length === 0 && (
-              <Card className="col-span-2 border-dashed">
+              <Card className="col-span-2 rounded-2xl border-dashed">
                 <CardContent className="flex flex-col items-center justify-center gap-3 p-10 text-center">
                   <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
                     <SearchX className="h-6 w-6" />
