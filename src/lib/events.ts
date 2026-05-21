@@ -9,6 +9,7 @@ export interface Event {
   description: string;
   content: string;
   likes: number;
+  isLiked: boolean;
   comments: number;
   createdAt: string;
 }
@@ -31,6 +32,7 @@ function mapEvent(raw: any): Event {
     description: raw.description,
     content: raw.description,
     likes: raw.likesCount ?? 0,
+    isLiked: raw.isLiked ?? false,
     comments: 0,
     createdAt: new Date(raw.createdAt).toLocaleDateString("pt-BR"),
   };

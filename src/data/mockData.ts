@@ -15,6 +15,7 @@ export interface Post {
   category: string;
   content: string;
   likes: number;
+  isLiked: boolean;
   comments: number;
   createdAt: string;
 }
@@ -108,6 +109,7 @@ export const mockPosts: Post[] = [
     content:
       "🌱 Plantamos mais de 500 árvores neste mês no Parque Municipal! Obrigado a todos os voluntários que participaram da ação.",
     likes: 87,
+    isLiked: false,
     comments: 12,
     createdAt: "2h atrás",
   },
@@ -119,6 +121,7 @@ export const mockPosts: Post[] = [
     content:
       "📚 Novas vagas abertas para o programa de reforço escolar. Precisamos de voluntários para aulas de matemática e português!",
     likes: 134,
+    isLiked: false,
     comments: 28,
     createdAt: "4h atrás",
   },
@@ -130,6 +133,7 @@ export const mockPosts: Post[] = [
     content:
       "🐾 Feira de adoção neste sábado! Venha conhecer nossos peludinhos que estão esperando um lar.",
     likes: 256,
+    isLiked: false,
     comments: 45,
     createdAt: "6h atrás",
   },
@@ -141,6 +145,7 @@ export const mockPosts: Post[] = [
     content:
       "🍽️ Distribuímos 2.000 marmitas esta semana. Cada doação faz diferença na vida de alguém.",
     likes: 312,
+    isLiked: false,
     comments: 56,
     createdAt: "8h atrás",
   },
@@ -152,6 +157,7 @@ export const mockPosts: Post[] = [
     content:
       "🎭 Inscrições abertas para oficina de teatro gratuita para jovens de 14 a 18 anos. Vagas limitadas!",
     likes: 78,
+    isLiked: false,
     comments: 15,
     createdAt: "1d atrás",
   },
@@ -174,5 +180,3 @@ export interface User {
   ongName?: string;
   category?: string;
 }
-
-

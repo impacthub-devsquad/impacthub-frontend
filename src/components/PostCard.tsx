@@ -5,18 +5,29 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import CategoryBadge from "./CategoryBadge";
 import type { Post } from "@/data/mockData";
+import { likeEvent, unlikeEvent } from "@/lib/events";
 
 const PostCard = ({ post }: { post: Post }) => {
-  const [liked, setLiked] = useState(false);
+  const [liked, setLiked] = useState(post.isLiked ?? false);
   const [likes, setLikes] = useState(post.likes);
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState<string[]>([]);
   const [newComment, setNewComment] = useState("");
   const [shared, setShared] = useState(false);
 
-  const handleLike = () => {
-    setLiked(!liked);
-    setLikes((prev) => (liked ? prev - 1 : prev + 1));
+  const handleLike = async () => {
+    try {
+      if (liked) {
+        await unlikeEvent(post.id);
+        setLikes((prev) => prev - 1);
+      } else {
+        await likeEvent(post.id);
+        setLikes((prev) => prev + 1);
+      }
+      setLiked(!liked);
+    } catch (err) {
+      console.error("Erro ao curtir:", err);
+    }
   };
 
   const handleComment = () => {
@@ -84,7 +95,6 @@ const PostCard = ({ post }: { post: Post }) => {
         {/* Seção de comentários */}
         {showComments && (
           <div className="mt-4 space-y-3 animate-in fade-in slide-in-from-top-2">
-            {/* Comentários existentes */}
             {comments.length > 0 && (
               <div className="space-y-2">
                 {comments.map((comment, index) => (
@@ -106,7 +116,6 @@ const PostCard = ({ post }: { post: Post }) => {
               </p>
             )}
 
-            {/* Input de novo comentário */}
             <div className="flex gap-2 items-center">
               <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs shrink-0">
                 U
