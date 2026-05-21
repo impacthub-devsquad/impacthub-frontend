@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,6 +15,16 @@ import ONGDashboard from "./pages/ONGDashboard.tsx";
 
 const queryClient = new QueryClient();
 
+const PrivateRoute = ({ children }: { children: JSX.Element }) => {
+  const token = localStorage.getItem("token");
+  return token ? children : <Navigate to="/" replace />;
+};
+
+const PublicRoute = ({ children }: { children: JSX.Element }) => {
+  const token = localStorage.getItem("token");
+  return token ? <Navigate to="/home" replace /> : children;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -22,14 +32,70 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/cadastro" element={<Register />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/buscar" element={<SearchONGs />} />
-          <Route path="/notificacoes" element={<Notifications />} />
-          <Route path="/perfil" element={<Perfil />} />
-          <Route path="/dashboard" element={<ONGDashboard />} />
-          <Route path="/recuperar-senha" element={<ForgotPassword />} />
+          <Route
+            path="/"
+            element={
+              <PublicRoute>
+                <Index />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/cadastro"
+            element={
+              <PublicRoute>
+                <Register />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/recuperar-senha"
+            element={
+              <PublicRoute>
+                <ForgotPassword />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/home"
+            element={
+              <PrivateRoute>
+                <Home />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/buscar"
+            element={
+              <PrivateRoute>
+                <SearchONGs />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/notificacoes"
+            element={
+              <PrivateRoute>
+                <Notifications />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/perfil"
+            element={
+              <PrivateRoute>
+                <Perfil />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute>
+                <ONGDashboard />
+              </PrivateRoute>
+            }
+          />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
