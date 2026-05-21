@@ -20,16 +20,21 @@ const PostCard = ({ post }: { post: Event }) => {
   }, [post.id]);
 
   const handleLike = async () => {
+    const nextLiked = !liked;
+    const nextLikes = nextLiked ? likes + 1 : likes - 1;
+
+    setLiked(nextLiked);
+    setLikes(nextLikes);
+
     try {
       if (liked) {
         await unlikeEvent(post.id);
-        setLikes((prev) => prev - 1);
       } else {
         await likeEvent(post.id);
-        setLikes((prev) => prev + 1);
       }
-      setLiked(!liked);
     } catch (err) {
+      setLiked(liked);
+      setLikes(likes);
       console.error("Erro ao curtir:", err);
     }
   };
@@ -48,16 +53,20 @@ const PostCard = ({ post }: { post: Event }) => {
   };
 
   return (
-    <Card className="shadow-sm hover:shadow-md transition-shadow">
-      <CardContent className="p-5">
+    <Card className="transition-all duration-200 hover:-translate-y-0.5">
+      <CardContent className="p-5 sm:p-6">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm ring-4 ring-primary/5">
             {post.ongName.charAt(0)}
           </div>
           <div className="flex-1">
-            <p className="font-semibold text-sm">{post.ongName}</p>
-            <p className="text-xs text-muted-foreground">{post.createdAt}</p>
+            <p className="font-semibold text-sm leading-tight">
+              {post.ongName}
+            </p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {post.createdAt}
+            </p>
           </div>
           <CategoryBadge category={post.category} />
         </div>
@@ -68,15 +77,17 @@ const PostCard = ({ post }: { post: Event }) => {
         )}
 
         {/* Conteúdo */}
-        <p className="text-sm leading-relaxed mb-4">{post.content}</p>
+        <p className="text-sm leading-relaxed mb-4 text-foreground/90">
+          {post.content}
+        </p>
 
         {/* Botões */}
-        <div className="flex items-center gap-4 pt-3 border-t">
+        <div className="flex items-center gap-2 sm:gap-4 pt-4 border-t flex-wrap">
           <Button
             variant="ghost"
             size="sm"
             onClick={handleLike}
-            className={`gap-1.5 transition-colors ${liked ? "text-red-500 hover:text-red-600" : "text-muted-foreground hover:text-primary"}`}
+            className={`gap-1.5 rounded-full px-3 transition-all ${liked ? "text-red-500 hover:text-red-600 bg-red-500/5" : "text-muted-foreground hover:text-primary hover:bg-primary/5"}`}
           >
             <Heart size={16} fill={liked ? "currentColor" : "none"} /> {likes}
           </Button>
@@ -85,7 +96,7 @@ const PostCard = ({ post }: { post: Event }) => {
             variant="ghost"
             size="sm"
             onClick={() => setShowComments(!showComments)}
-            className={`gap-1.5 transition-colors ${showComments ? "text-primary" : "text-muted-foreground hover:text-primary"}`}
+            className={`gap-1.5 rounded-full px-3 transition-all ${showComments ? "text-primary bg-primary/5" : "text-muted-foreground hover:text-primary hover:bg-primary/5"}`}
           >
             <MessageCircle size={16} /> {post.comments + comments.length}
           </Button>
@@ -94,7 +105,7 @@ const PostCard = ({ post }: { post: Event }) => {
             variant="ghost"
             size="sm"
             onClick={handleShare}
-            className={`gap-1.5 ml-auto transition-colors ${shared ? "text-green-600" : "text-muted-foreground hover:text-primary"}`}
+            className={`gap-1.5 ml-auto rounded-full px-3 transition-all ${shared ? "text-green-600 bg-green-600/5" : "text-muted-foreground hover:text-primary hover:bg-primary/5"}`}
           >
             <Share2 size={16} />
             {shared ? "Copiado!" : ""}

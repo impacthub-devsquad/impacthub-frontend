@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import { getMe, logout, User } from "@/lib/auth";
 import { api } from "@/lib/api";
 
@@ -58,8 +59,28 @@ const Perfil = () => {
   if (loading) {
     return (
       <AppLayout>
-        <div className="flex justify-center items-center h-40 text-muted-foreground">
-          Carregando perfil...
+        <div className="max-w-2xl mx-auto w-full space-y-4">
+          <Skeleton className="h-8 w-40 rounded-full" />
+          <Card>
+            <CardContent className="p-6 space-y-6">
+              <div className="flex flex-col items-center text-center gap-3">
+                <Skeleton className="h-20 w-20 rounded-full" />
+                <Skeleton className="h-5 w-32 rounded-full" />
+                <Skeleton className="h-4 w-44 rounded-full" />
+              </div>
+
+              <div className="space-y-4">
+                <Skeleton className="h-11 w-full rounded-xl" />
+                <Skeleton className="h-11 w-full rounded-xl" />
+                <Skeleton className="h-24 w-full rounded-xl" />
+              </div>
+
+              <div className="grid gap-2 sm:grid-cols-2">
+                <Skeleton className="h-11 w-full rounded-full" />
+                <Skeleton className="h-11 w-full rounded-full" />
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </AppLayout>
     );
@@ -69,21 +90,30 @@ const Perfil = () => {
 
   return (
     <AppLayout>
-      <div className="max-w-xl mx-auto w-full">
-        <h1 className="text-xl font-bold mb-4">Meu Perfil</h1>
+      <div className="max-w-2xl mx-auto w-full space-y-5">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-semibold tracking-tight">Meu Perfil</h1>
+          <p className="text-sm text-muted-foreground">
+            Atualize suas informações básicas e mantenha seus dados em dia.
+          </p>
+        </div>
         <Card>
           <CardContent className="p-6 space-y-6">
             <div className="flex flex-col items-center text-center gap-2">
-              <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-2xl font-bold text-primary">
+              <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-2xl font-bold text-primary ring-4 ring-primary/5">
                 {userData.username.charAt(0).toUpperCase()}
               </div>
-              <h2 className="text-lg font-semibold">{userData.username}</h2>
+              <h2 className="text-xl font-semibold leading-tight">
+                {userData.username}
+              </h2>
               <p className="text-sm text-muted-foreground">{userData.email}</p>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-5">
               <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">Nome</Label>
+                <Label className="text-xs font-medium text-muted-foreground">
+                  Nome
+                </Label>
                 {isEditing ? (
                   <Input
                     value={formData.username}
@@ -100,14 +130,16 @@ const Perfil = () => {
               </div>
 
               <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">Email</Label>
+                <Label className="text-xs font-medium text-muted-foreground">
+                  Email
+                </Label>
                 <div className="bg-muted/40 px-3 py-2 rounded-lg text-muted-foreground">
                   {userData.email}
                 </div>
               </div>
 
               <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">
+                <Label className="text-xs font-medium text-muted-foreground">
                   Descrição
                 </Label>
                 {isEditing ? (
@@ -129,14 +161,16 @@ const Perfil = () => {
             </div>
 
             {error && (
-              <p className="text-red-500 text-sm text-center">{error}</p>
+              <p className="rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive text-center">
+                {error}
+              </p>
             )}
 
-            <div className="pt-4 flex flex-col gap-2">
+            <div className="pt-2 flex flex-col gap-2">
               {isEditing ? (
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-col sm:flex-row">
                   <Button
-                    className="flex-1"
+                    className="flex-1 rounded-full"
                     onClick={handleSave}
                     disabled={saving}
                   >
@@ -144,7 +178,7 @@ const Perfil = () => {
                   </Button>
                   <Button
                     variant="outline"
-                    className="flex-1"
+                    className="flex-1 rounded-full"
                     onClick={handleCancel}
                     disabled={saving}
                   >
@@ -152,11 +186,18 @@ const Perfil = () => {
                   </Button>
                 </div>
               ) : (
-                <Button onClick={() => setIsEditing(true)}>
+                <Button
+                  onClick={() => setIsEditing(true)}
+                  className="rounded-full"
+                >
                   Editar perfil
                 </Button>
               )}
-              <Button variant="destructive" onClick={handleLogout}>
+              <Button
+                variant="destructive"
+                onClick={handleLogout}
+                className="rounded-full"
+              >
                 Sair
               </Button>
             </div>

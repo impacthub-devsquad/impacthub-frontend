@@ -14,6 +14,9 @@ const ONGCard = ({ ong }: { ong: ONG }) => {
 
   const handleFollow = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    const nextFollowing = !following;
+
+    setFollowing(nextFollowing);
     setLoading(true);
     try {
       if (following) {
@@ -21,8 +24,8 @@ const ONGCard = ({ ong }: { ong: ONG }) => {
       } else {
         await followOng(ong.id);
       }
-      setFollowing(!following);
     } catch (e) {
+      setFollowing(following);
       console.error("Erro ao seguir/deixar de seguir ONG", e);
     } finally {
       setLoading(false);
@@ -31,16 +34,16 @@ const ONGCard = ({ ong }: { ong: ONG }) => {
 
   return (
     <Card
-      className="shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+      className="cursor-pointer transition-all duration-200 hover:-translate-y-0.5"
       onClick={() => navigate(`/ongs/${ong.id}`)}
     >
-      <CardContent className="p-5">
-        <div className="flex items-start gap-3 mb-3">
-          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold text-lg shrink-0">
+      <CardContent className="p-5 sm:p-6">
+        <div className="flex items-start gap-3 mb-4">
+          <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-bold text-lg shrink-0 ring-4 ring-primary/5">
             {ong.name.charAt(0)}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-semibold truncate">{ong.name}</p>
+            <p className="font-semibold truncate leading-tight">{ong.name}</p>
             {ong.city && (
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
                 <MapPin size={12} />
@@ -50,10 +53,10 @@ const ONGCard = ({ ong }: { ong: ONG }) => {
           </div>
         </div>
         <CategoryBadge category={ong.category} />
-        <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+        <p className="text-sm text-muted-foreground mt-2 leading-relaxed line-clamp-2">
           {ong.description}
         </p>
-        <div className="flex items-center justify-between mt-4">
+        <div className="flex items-center justify-between mt-5 gap-3">
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <Users size={14} />
             <span>{(ong.followers ?? 0).toLocaleString()} seguidores</span>
@@ -63,7 +66,7 @@ const ONGCard = ({ ong }: { ong: ONG }) => {
             variant={following ? "secondary" : "default"}
             onClick={handleFollow}
             disabled={loading}
-            className="rounded-full text-xs px-4"
+            className="rounded-full text-xs px-4 min-w-24"
           >
             {loading ? "..." : following ? "Seguindo" : "Seguir"}
           </Button>

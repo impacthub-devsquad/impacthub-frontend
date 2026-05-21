@@ -44,7 +44,7 @@ const ForgotPassword = () => {
         <Leaf size={80} className="text-primary" />
       </div>
 
-      <Card className="w-full max-w-md shadow-lg border-0">
+      <Card className="w-full max-w-md shadow-xl border-0 rounded-3xl">
         <CardContent className="p-8">
           <div className="flex justify-center mb-8">
             <Logo size="lg" />

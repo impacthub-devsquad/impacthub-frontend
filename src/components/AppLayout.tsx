@@ -18,13 +18,13 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Top Nav */}
-      <header className="sticky top-0 z-50 bg-card border-b shadow-sm">
-        <div className="w-full flex items-center gap-4 px-4 h-14">
+      <header className="sticky top-0 z-50 border-b border-border/70 bg-card/90 backdrop-blur supports-[backdrop-filter]:bg-card/80 shadow-sm">
+        <div className="w-full flex items-center gap-4 px-4 h-16 md:px-6">
           <Link to="/home">
             <Logo size="sm" />
           </Link>
           <div className="flex-1" />
-          <Avatar className="w-8 h-8 cursor-pointer ml-auto">
+          <Avatar className="w-9 h-9 cursor-pointer ml-auto ring-2 ring-transparent transition-shadow hover:shadow-md">
             <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
               U
             </AvatarFallback>
@@ -32,19 +32,19 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
         </div>
       </header>
 
-      <div className="flex-1 flex w-full">
+      <div className="flex-1 flex w-full max-w-7xl mx-auto">
         {/* Desktop Sidebar */}
-        <aside className="hidden md:flex flex-col w-56 shrink-0 p-4 gap-1 sticky top-14 h-[calc(100vh-3.5rem)] ml-4">
+        <aside className="hidden md:flex flex-col w-60 shrink-0 p-4 gap-1 sticky top-16 h-[calc(100vh-4rem)] ml-4 border-r border-border/70">
           {navItems.map((item) => {
             const active = location.pathname === item.path;
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                className={`flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-medium transition-all duration-200 ${
                   active
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"
                 }`}
               >
                 <item.icon size={20} />
@@ -55,20 +55,24 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 px-4 py-6 pb-20 md:pb-6">{children}</main>
+        <main className="flex-1 w-full px-4 py-6 pb-24 md:px-6 md:py-8 md:pb-8">
+          {children}
+        </main>
       </div>
 
       {/* Mobile Bottom Tab */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t z-50">
-        <div className="flex justify-around py-2">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border/70 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/85">
+        <div className="flex justify-around py-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))]">
           {navItems.map((item) => {
             const active = location.pathname === item.path;
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex flex-col items-center gap-0.5 px-3 py-1 text-xs ${
-                  active ? "text-primary" : "text-muted-foreground"
+                className={`flex flex-col items-center gap-0.5 rounded-2xl px-3 py-1.5 text-xs transition-colors ${
+                  active
+                    ? "text-primary bg-primary/10"
+                    : "text-muted-foreground"
                 }`}
               >
                 <item.icon size={20} />
