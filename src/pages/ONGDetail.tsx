@@ -14,10 +14,12 @@ import CategoryBadge from "@/components/CategoryBadge";
 import {
   getOngById,
   getOngEvents,
+  getOngParticipants,
   followOng,
   unfollowOng,
   type ONGDetail,
   type ONGEvent,
+  type ONGParticipant,
 } from "@/lib/ongs";
 import Skeleton from "@/components/Skeleton";
 import { Card, CardContent } from "@/components/ui/card";
@@ -31,50 +33,74 @@ const ONGDetail = () => {
   const [following, setFollowing] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
   const [events, setEvents] = useState<ONGEvent[]>([]);
+  const [participants, setParticipants] = useState<ONGParticipant[]>([]);
+  const [eventsLoading, setEventsLoading] = useState(true);
+  const [participantsLoading, setParticipantsLoading] = useState(true);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!ongId) return;
 
-    const loadData = async () => {
+    const loadDetail = async () => {
       try {
-        const [ongResponse, eventsResponse] = await Promise.allSettled([
-          getOngById(ongId),
-          getOngEvents(ongId),
-        ]);
-
-        if (ongResponse.status === "fulfilled") {
-          setOng(ongResponse.value);
-          setFollowing(ongResponse.value.isFollowing);
-        } else {
-          setError(true);
-          return;
-        }
-
-        if (eventsResponse.status === "fulfilled") {
-          setEvents(eventsResponse.value);
-        } else {
-          setEvents([]);
-        }
+        const response = await getOngById(ongId);
+        setOng(response);
+        setFollowing(response.isFollowing);
+        setError(false);
+      } catch {
+        setError(true);
       } finally {
         setLoading(false);
       }
     };
 
-    void loadData();
+    const loadEvents = async () => {
+      setEventsLoading(true);
+      try {
+        const response = await getOngEvents(ongId);
+        setEvents(response);
+      } catch {
+        setEvents([]);
+      } finally {
+        setEventsLoading(false);
+      }
+    };
+
+    const loadParticipants = async () => {
+      setParticipantsLoading(true);
+      try {
+        const response = await getOngParticipants(ongId);
+        setParticipants(response);
+      } catch {
+        setParticipants([]);
+      } finally {
+        setParticipantsLoading(false);
+      }
+    };
+
+    void loadDetail();
+    void loadEvents();
+    void loadParticipants();
   }, [ongId]);
 
   const handleFollow = async () => {
-    if (!ongId) return;
+    if (!ongId || followLoading) return;
+
+    const nextFollowing = !following;
+    setActionError(null);
+    setFollowing(nextFollowing);
     setFollowLoading(true);
+
     try {
-      if (following) {
-        await unfollowOng(ongId);
-      } else {
+      if (nextFollowing) {
         await followOng(ongId);
+      } else {
+        await unfollowOng(ongId);
       }
-      setFollowing(!following);
-    } catch (e) {
-      console.error("Erro ao seguir/deixar de seguir ONG", e);
+    } catch (error) {
+      setFollowing(!nextFollowing);
+      setActionError("Não foi possível atualizar o status de seguimento.");
+      console.error("Erro ao seguir/deixar de seguir ONG", error);
     } finally {
       setFollowLoading(false);
     }
@@ -226,6 +252,81 @@ const ONGDetail = () => {
           </div>
         )}
 
+        {actionError && (
+          <Card className="rounded-2xl border-destructive/30 bg-destructive/5">
+            <CardContent className="p-4 text-sm text-destructive">
+              {actionError}
+            </CardContent>
+          </Card>
+        )}
+
+        <section className="space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-semibold tracking-tight">
+                Participantes
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Pessoas que participam atualmente desta ONG.
+              </p>
+            </div>
+          </div>
+
+          {participantsLoading ? (
+            <div className="grid gap-3 sm:grid-cols-2">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <Card key={index} className="rounded-2xl">
+                  <CardContent className="p-4 space-y-3">
+                    <div className="flex items-center gap-3">
+                      <Skeleton variant="circle" className="h-10 w-10" />
+                      <div className="flex-1 space-y-2">
+                        <Skeleton variant="text" className="h-4 w-32" />
+                        <Skeleton variant="text" className="h-3 w-20" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : participants.length === 0 ? (
+            <Card className="rounded-2xl border-dashed">
+              <CardContent className="flex flex-col items-center justify-center gap-3 p-10 text-center">
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <Users className="h-6 w-6" />
+                </div>
+                <p className="font-semibold">
+                  Nenhum participante nesta ONG ainda.
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2">
+              {participants.map((participant) => (
+                <Card key={participant.id} className="rounded-2xl">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-semibold shrink-0">
+                        {participant.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold truncate">
+                          {participant.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          @{participant.username}
+                        </p>
+                        <p className="text-xs text-primary mt-1">
+                          {participant.role}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </section>
+
         {/* Eventos da ONG */}
         <section className="space-y-3">
           <div className="flex items-center justify-between gap-3">
@@ -241,7 +342,7 @@ const ONGDetail = () => {
             </div>
           </div>
 
-          {loading ? (
+          {eventsLoading ? (
             <div className="space-y-3">
               {Array.from({ length: 3 }).map((_, index) => (
                 <Card key={index} className="rounded-2xl">
@@ -260,7 +361,7 @@ const ONGDetail = () => {
                   <AlertCircle className="h-6 w-6" />
                 </div>
                 <div className="space-y-1">
-                  <p className="font-semibold">No events for this ONG yet</p>
+                  <p className="font-semibold">Nenhum evento ainda</p>
                   <p className="text-sm text-muted-foreground">
                     Quando houver novos eventos, eles aparecerão aqui.
                   </p>

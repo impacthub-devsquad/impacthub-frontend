@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Copy, Check } from "lucide-react";
 import AppLayout from "@/components/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ const Perfil = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     getMe()
@@ -54,6 +56,18 @@ const Perfil = () => {
   const handleLogout = () => {
     logout();
     navigate("/");
+  };
+
+  const handleCopyUserId = async () => {
+    if (!userData?.userId) return;
+
+    try {
+      await navigator.clipboard.writeText(userData.userId);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
+    } catch {
+      setError("Não foi possível copiar o ID.");
+    }
   };
 
   if (loading) {
@@ -135,6 +149,36 @@ const Perfil = () => {
                 </Label>
                 <div className="bg-muted/40 px-3 py-2 rounded-xl text-muted-foreground">
                   {userData.email}
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs font-medium text-muted-foreground">
+                  Seu ID de voluntário
+                </Label>
+                <div className="bg-muted/40 px-3 py-2 rounded-xl flex items-center justify-between gap-2">
+                  <span className="text-sm text-muted-foreground truncate">
+                    {userData.userId}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleCopyUserId}
+                    className="h-8 rounded-full px-3"
+                  >
+                    {copied ? (
+                      <>
+                        <Check className="h-4 w-4" />
+                        Copiado!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-4 w-4" />
+                        Copiar
+                      </>
+                    )}
+                  </Button>
                 </div>
               </div>
 

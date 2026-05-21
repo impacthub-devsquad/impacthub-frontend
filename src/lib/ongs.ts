@@ -33,6 +33,13 @@ export interface ONGEvent {
   location: string;
 }
 
+export interface ONGParticipant {
+  id: string;
+  name: string;
+  username: string;
+  role: string;
+}
+
 export interface CreateOngPayload {
   name: string;
   title: string;
@@ -81,6 +88,57 @@ function mapOngEvent(raw: Record<string, unknown>): ONGEvent {
     date,
     location,
   };
+}
+
+function mapOngParticipant(raw: Record<string, unknown>): ONGParticipant {
+  const name =
+    typeof raw.name === "string"
+      ? raw.name
+      : typeof raw.fullName === "string"
+        ? raw.fullName
+        : typeof raw.username === "string"
+          ? raw.username
+          : "Voluntário";
+  const username = typeof raw.username === "string" ? raw.username : name;
+  const role =
+    typeof raw.role === "string"
+      ? raw.role
+      : typeof raw.participantRole === "string"
+        ? raw.participantRole
+        : "Participante";
+
+  return {
+    id:
+      typeof raw.userId === "string"
+        ? raw.userId
+        : typeof raw.id === "string"
+          ? raw.id
+          : crypto.randomUUID(),
+    name,
+    username,
+    role,
+  };
+}
+
+function getListFromEnvelope(data: unknown): Record<string, unknown>[] {
+  if (Array.isArray(data)) {
+    return data.filter(
+      (item): item is Record<string, unknown> =>
+        Boolean(item) && typeof item === "object",
+    );
+  }
+
+  if (data && typeof data === "object") {
+    const envelope = data as { content?: unknown };
+    if (Array.isArray(envelope.content)) {
+      return envelope.content.filter(
+        (item): item is Record<string, unknown> =>
+          Boolean(item) && typeof item === "object",
+      );
+    }
+  }
+
+  return [];
 }
 
 export async function getOngs(): Promise<ONG[]> {
@@ -133,16 +191,20 @@ export async function getOngEvents(ongId: string): Promise<ONGEvent[]> {
     `/api/v1/ongs/${ongId}/events?page=0&size=10`,
   );
 
-  const data = response?.data;
-  const list = Array.isArray(data)
-    ? data
-    : data &&
-        typeof data === "object" &&
-        Array.isArray((data as { content?: unknown }).content)
-      ? (data as { content: Record<string, unknown>[] }).content
-      : [];
+  const list = getListFromEnvelope(response?.data);
 
   return list.map(mapOngEvent);
+}
+
+export async function getOngParticipants(
+  ongId: string,
+): Promise<ONGParticipant[]> {
+  const response = await api.get<{ data?: unknown }>(
+    `/api/v1/ongs/${ongId}/participants`,
+  );
+
+  const list = getListFromEnvelope(response?.data);
+  return list.map(mapOngParticipant);
 }
 
 export async function createOng(payload: CreateOngPayload): Promise<string> {
