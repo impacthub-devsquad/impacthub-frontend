@@ -12,7 +12,7 @@ import ForgotPassword from "./pages/ForgotPassword.tsx";
 import Notifications from "./pages/Notifications.tsx";
 import Perfil from "./pages/Perfil.tsx";
 import ONGDashboard from "./pages/ONGDashboard.tsx";
-import ONGDetail from "./pages/OngDetail.tsx";
+import ONGDetail from "./pages/ONGDetail.tsx";
 import PostDetail from "./pages/PostDetail.tsx";
 
 const queryClient = new QueryClient();
