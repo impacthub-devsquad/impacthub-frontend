@@ -4,10 +4,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import CategoryBadge from "./CategoryBadge";
-import type { Post } from "@/data/mockData";
+import type { Event } from "@/lib/events";
 import { likeEvent, unlikeEvent } from "@/lib/events";
 
-const PostCard = ({ post }: { post: Post }) => {
+const PostCard = ({ post }: { post: Event }) => {
   const [liked, setLiked] = useState(post.isLiked ?? false);
   const [likes, setLikes] = useState(post.likes);
   const [showComments, setShowComments] = useState(false);
@@ -57,6 +57,11 @@ const PostCard = ({ post }: { post: Post }) => {
           </div>
           <CategoryBadge category={post.category} />
         </div>
+
+        {/* Título */}
+        {post.title && (
+          <p className="font-semibold text-sm mb-1">{post.title}</p>
+        )}
 
         {/* Conteúdo */}
         <p className="text-sm leading-relaxed mb-4">{post.content}</p>
