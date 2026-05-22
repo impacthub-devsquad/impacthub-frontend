@@ -21,15 +21,18 @@ const Perfil = () => {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    getMe()
-      .then((user) => {
-        setUserData(user);
-        setFormData({ username: user.username, description: "" });
-      })
-      .catch(() => navigate("/"))
-      .finally(() => setLoading(false));
-  }, []);
+ useEffect(() => {
+  getMe()
+    .then((user) => {
+      setUserData(user);
+      setFormData({
+        username: user.username,
+        description: "",
+      });
+    })
+    .catch(() => navigate("/"))
+    .finally(() => setLoading(false));
+}, [navigate]);
 
   const handleSave = async () => {
     if (!userData) return;
@@ -39,9 +42,12 @@ const Perfil = () => {
       await api.patch("/api/v1/users/me", formData);
       setUserData({ ...userData, username: formData.username });
       setIsEditing(false);
-    } catch (err: any) {
-      setError(err.message || "Erro ao salvar perfil");
-    } finally {
+    } catch (err: unknown) {
+  const message =
+    err instanceof Error ? err.message : "Erro ao salvar perfil";
+
+  setError(message);
+} finally {
       setSaving(false);
     }
   };
