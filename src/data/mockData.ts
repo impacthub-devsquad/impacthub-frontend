@@ -163,8 +163,10 @@ export const mockPosts: Post[] = [
   },
 ];
 
-export const currentUser = {
-  type: "ong" as "ong" | "voluntario",
+export const currentUser: User = {
+  userId: "u1",
+  username: "verdevivo_admin",
+  role: "ong",
   ongId: "1",
   ongName: "Verde Vivo",
   category: "Meio Ambiente",
@@ -173,7 +175,9 @@ export const currentUser = {
 };
 
 export interface User {
-  type: "ong" | "voluntario";
+  userId: string;
+  username: string;
+  role: "ong" | "volunteer";
   name: string;
   email: string;
   ongId?: string;

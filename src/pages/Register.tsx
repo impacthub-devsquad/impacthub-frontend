@@ -37,7 +37,7 @@ type Errors = {
 };
 
 const Register = () => {
-  const [userType, setUserType] = useState<"voluntario" | "ong">("voluntario");
+  const [userType, setUserType] = useState<"volunteer" | "ong">("volunteer");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -192,9 +192,9 @@ const Register = () => {
               <div className="flex gap-2">
                 <Button
                   type="button"
-                  variant={userType === "voluntario" ? "default" : "outline"}
+                  variant={userType === "volunteer" ? "default" : "outline"}
                   className="flex-1 rounded-full"
-                  onClick={() => setUserType("voluntario")}
+                  onClick={() => setUserType("volunteer")}
                 >
                   Voluntário
                 </Button>
