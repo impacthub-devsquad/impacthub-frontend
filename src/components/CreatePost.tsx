@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,17 +10,26 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Send } from "lucide-react";
-import { categories, currentUser } from "@/data/mockData";
+import { categories } from "@/data/mockData";
+import { getMe } from "@/lib/auth";
+import type { User } from "@/lib/auth";
 import type { Post } from "@/data/mockData";
 
 const CreatePost = ({ onPost }: { onPost: (post: Post) => void }) => {
+  const [user, setUser] = useState<User | null>(null);
   const [content, setContent] = useState("");
-  const [category, setCategory] = useState(
-    currentUser.category || categories[0]
-  );
+  const [category, setCategory] = useState(categories[0]);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    getMe()
+      .then(setUser)
+      .catch(console.error);
+  }, []);
+
   const handleSubmit = () => {
+    if (!user) return;
+
     if (!content.trim()) {
       setError("Escreva algo antes de publicar!");
       return;
@@ -33,8 +42,8 @@ const CreatePost = ({ onPost }: { onPost: (post: Post) => void }) => {
 
     const newPost: Post = {
       id: `p${Date.now()}`,
-      ongId: currentUser.ongId!,
-      ongName: currentUser.ongName!,
+      ongId: user.userId,
+      ongName: user.username,
       category,
       content: content.trim(),
       likes: 0,
@@ -48,19 +57,19 @@ const CreatePost = ({ onPost }: { onPost: (post: Post) => void }) => {
     setError("");
   };
 
-  if (currentUser.role !== "ong") return null;
+  if (!user || user.role !== "ong") return null;
 
   return (
     <Card className="shadow-sm border-primary/20">
       <CardContent className="p-5">
         <div className="flex gap-3 items-start">
           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">
-            {currentUser.ongName?.charAt(0)}
+            {user.username.charAt(0).toUpperCase()}
           </div>
 
           <div className="flex-1 space-y-3">
             <p className="font-semibold text-sm">
-              {currentUser.ongName}
+              {user.username}
             </p>
 
             <Textarea
