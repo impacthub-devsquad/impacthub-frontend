@@ -154,7 +154,7 @@ const Perfil = () => {
 
               <div className="space-y-1">
                 <Label className="text-xs font-medium text-muted-foreground">
-                  Seu ID de voluntário
+                  Seu ID de usuário
                 </Label>
                 <div className="bg-muted/40 px-3 py-2 rounded-xl flex items-center justify-between gap-2">
                   <span className="text-sm text-muted-foreground truncate">
