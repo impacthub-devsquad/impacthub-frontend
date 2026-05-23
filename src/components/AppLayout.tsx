@@ -1,23 +1,15 @@
 import { ReactNode, useEffect, useMemo, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Home, Search, Bell, User, LayoutDashboard } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Logo from "./Logo";
 import Skeleton from "@/components/Skeleton";
 import { getMe, type User as LoggedUser } from "@/lib/auth";
-import { useNavigate } from "react-router-dom";
-
-const navItems = [
-  { icon: Home, label: "Home", path: "/home" },
-  { icon: Search, label: "Buscar ONGs", path: "/buscar" },
-  { icon: Bell, label: "Notificações", path: "/notificacoes" },
-  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-  { icon: User, label: "Perfil", path: "/perfil" },
-];
 
 const AppLayout = ({ children }: { children: ReactNode }) => {
   const location = useLocation();
   const navigate = useNavigate();
+
   const [user, setUser] = useState<LoggedUser | null>(null);
   const [userLoading, setUserLoading] = useState(true);
 
@@ -26,13 +18,19 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
 
     getMe()
       .then((me) => {
-        if (mounted) setUser(me);
+        if (mounted) {
+          setUser(me);
+        }
       })
       .catch(() => {
-        if (mounted) setUser(null);
+        if (mounted) {
+          setUser(null);
+        }
       })
       .finally(() => {
-        if (mounted) setUserLoading(false);
+        if (mounted) {
+          setUserLoading(false);
+        }
       });
 
     return () => {
@@ -40,7 +38,33 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
     };
   }, []);
 
+  const navItems = useMemo(() => {
+    const items = [
+      { icon: Home, label: "Home", path: "/home" },
+      { icon: Search, label: "Buscar ONGs", path: "/buscar" },
+      { icon: Bell, label: "Notificações", path: "/notificacoes" },
+    ];
+
+    // Dashboard apenas para ONG
+    if (user?.role === "ong") {
+      items.push({
+        icon: LayoutDashboard,
+        label: "Dashboard",
+        path: "/dashboard",
+      });
+    }
+
+    items.push({
+      icon: User,
+      label: "Perfil",
+      path: "/perfil",
+    });
+
+    return items;
+  }, [user]);
+
   const avatarSrc = user?.avatar || user?.profilePicture || "";
+
   const avatarFallback = useMemo(() => {
     const label = user?.name?.trim() || user?.username?.trim() || "U";
     return label.charAt(0).toUpperCase();
@@ -54,7 +78,9 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
           <Link to="/home">
             <Logo size="sm" />
           </Link>
+
           <div className="flex-1" />
+
           <Avatar className="w-9 h-9 cursor-pointer ml-auto ring-2 ring-transparent transition-shadow hover:shadow-md">
             <button
               type="button"
@@ -85,6 +111,7 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
         <aside className="hidden md:flex flex-col w-60 shrink-0 p-4 gap-1 sticky top-16 h-[calc(100vh-4rem)] ml-4 border-r border-border/70">
           {navItems.map((item) => {
             const active = location.pathname === item.path;
+
             return (
               <Link
                 key={item.path}
@@ -113,6 +140,7 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
         <div className="flex justify-around py-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))]">
           {navItems.map((item) => {
             const active = location.pathname === item.path;
+
             return (
               <Link
                 key={item.path}
